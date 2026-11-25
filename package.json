@@ -1,0 +1,23 @@
+{
+	"name": "mcp-toys",
+	"private": true,
+	"type": "module",
+	"packageManager": "bun@1.4.2",
+	"workspaces": [
+		"servers/*",
+		"packages/*"
+	],
+	"scripts": {
+		"check": "biome check . && bun run typecheck",
+		"format": "biome check --write .",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"test": "bun scripts/run-tests.ts",
+		"prepare": "lefthook install"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.6.9",
+		"@types/bun": "^1.4.5",
+		"lefthook": "^2.2.2",
+		"typescript": "^7.0.2"
+	}
+}
