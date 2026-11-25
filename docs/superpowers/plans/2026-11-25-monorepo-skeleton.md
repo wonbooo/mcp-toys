@@ -24,6 +24,7 @@
 ### Task 1: 忽略规则与编辑器默认值
 
 **Files:**
+
 - Modify: `.gitignore`
 - Create: `.editorconfig`
 - Create: `.gitattributes`
@@ -31,6 +32,7 @@
 - Create: `packages/.gitkeep`
 
 **Interfaces:**
+
 - Consumes: 无
 - Produces: `.gitignore` 忽略 `.idea/`、`.vscode/`、`node_modules/`、`dist/`、`out/`、`coverage/`、`.env`，并且不忽略 `bun.lock` 与 `.env.example`
 
@@ -121,6 +123,7 @@ git commit -m "Set repository ignore rules and editor defaults."
 ### Task 2: 根包、TypeScript 基线与 Lefthook
 
 **Files:**
+
 - Create: `package.json`
 - Create: `tsconfig.base.json`
 - Create: `tsconfig.json`
@@ -128,6 +131,7 @@ git commit -m "Set repository ignore rules and editor defaults."
 - Create: `bun.lock`（由 `bun install` 生成）
 
 **Interfaces:**
+
 - Consumes: Task 1 的 `.gitignore`，这样 `node_modules/` 不会进 git
 - Produces: 脚本名 `check`、`format`、`typecheck`、`test`、`prepare`。`typecheck` 执行 `tsc -p tsconfig.json --noEmit`。`test` 执行 `bun scripts/run-tests.ts`。`prepare` 执行 `lefthook install`。根 tsconfig 的 include 是 `scripts`、`servers`、`packages`。
 
@@ -230,11 +234,13 @@ git commit -m "Add the Bun workspace manifest and TypeScript baseline."
 ### Task 3: 测试入口
 
 **Files:**
+
 - Create: `scripts/run-tests.test.ts`
 - Create: `scripts/run-tests.ts`
 - Test: `scripts/run-tests.test.ts`
 
 **Interfaces:**
+
 - Consumes: Task 2 的 `package.json` 脚本 `test` = `bun scripts/run-tests.ts`，以及已安装的 Bun 1.4.2
 - Produces:
   - `isTestFile(filename: string): boolean`
@@ -283,12 +289,8 @@ describe("collectTestFiles", () => {
       mkdirSync(join(root, "scripts"));
       writeFileSync(join(root, "scripts", "app.test.ts"), "");
 
-      const found = collectTestFiles(root).map((file) =>
-        file.replaceAll("\\", "/"),
-      );
-      expect(found).toEqual([
-        join(root, "scripts", "app.test.ts").replaceAll("\\", "/"),
-      ]);
+      const found = collectTestFiles(root).map((file) => file.replaceAll("\\", "/"));
+      expect(found).toEqual([join(root, "scripts", "app.test.ts").replaceAll("\\", "/")]);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -330,13 +332,7 @@ Expected: 退出码非 0。输出里能看到找不到 `./run-tests.ts`。
 import { readdirSync, type Dirent } from "node:fs";
 import { join } from "node:path";
 
-const SKIP_DIRS: ReadonlySet<string> = new Set([
-  "node_modules",
-  "dist",
-  "out",
-  "coverage",
-  ".git",
-]);
+const SKIP_DIRS: ReadonlySet<string> = new Set(["node_modules", "dist", "out", "coverage", ".git"]);
 
 export function isTestFile(filename: string): boolean {
   return (
@@ -439,10 +435,12 @@ git commit -m "Add a test runner that succeeds when the repo has no tests."
 ### Task 4: Biome
 
 **Files:**
+
 - Create: `biome.json`
 - Modify: 被 `bun run format` 改写的已跟踪文件
 
 **Interfaces:**
+
 - Consumes: Task 2 的 `check` 与 `format` 脚本，Task 3 的 TypeScript 文件
 - Produces: `biome check .` 对当前仓库退出码 0。`bun.lock` 不参与检查。
 
@@ -518,9 +516,11 @@ git commit -m "Check formatting and lint with Biome."
 ### Task 5: GitHub Actions
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 **Interfaces:**
+
 - Consumes: Task 2 的 `packageManager`、`check`、`test`，Task 4 已经能通过的 `bun run check`
 - Produces: 推送到 `main` 或打开任意 pull request 时，在 `ubuntu-latest` 上依次执行 `bun install --frozen-lockfile`、`bun run check`、`bun run test`
 
@@ -570,11 +570,13 @@ git commit -m "Run check and test on push to main and on pull requests."
 ### Task 6: README、CONTRIBUTING 与 AGENTS
 
 **Files:**
+
 - Create: `README.md`
 - Create: `CONTRIBUTING.md`
 - Create: `AGENTS.md`
 
 **Interfaces:**
+
 - Consumes: 前面任务已经固定的命令、目录、版本和钩子行为
 - Produces: 三份中文文档。`CONTRIBUTING.md` 是规范正文。`AGENTS.md` 不增加与它矛盾的规则。
 
@@ -692,9 +694,11 @@ git commit -m "Document the workspace layout and development rules."
 ### Task 7: 按 spec 的完成标准复查
 
 **Files:**
+
 - 无新增文件。只在前序任务漏掉生成物时补交。
 
 **Interfaces:**
+
 - Consumes: Task 1 到 Task 6 的全部文件
 - Produces: spec「完成标准」一节里的四条命令都退出码为 0
 
