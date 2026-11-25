@@ -1,34 +1,56 @@
 import { type Dirent, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-const SKIP_DIRS: ReadonlySet<string> = new Set(["node_modules", "dist", "out", "coverage", ".git"]);
+const SKIP_DIRS: ReadonlySet<string> = new Set(["node_modules", "dist", "out", "coverage"]);
+
+const TEST_EXTENSIONS: ReadonlySet<string> = new Set([
+  "js",
+  "jsx",
+  "ts",
+  "tsx",
+  "mjs",
+  "cjs",
+  "mts",
+  "cts",
+]);
+
+const TEST_STEM_SUFFIXES: readonly string[] = [".test", "_test", ".spec", "_spec"];
 
 export function isTestFile(filename: string): boolean {
-  return (
-    filename.includes(".test") ||
-    filename.includes("_test_") ||
-    filename.includes(".spec") ||
-    filename.includes("_spec_")
-  );
+  const extensionStart = filename.lastIndexOf(".");
+  if (extensionStart <= 0) {
+    return false;
+  }
+
+  const extension = filename.slice(extensionStart + 1);
+  if (!TEST_EXTENSIONS.has(extension)) {
+    return false;
+  }
+
+  const stem = filename.slice(0, extensionStart);
+  return TEST_STEM_SUFFIXES.some((suffix) => stem.endsWith(suffix));
 }
 
 export function collectTestFiles(root: string): string[] {
   const found: string[] = [];
 
-  const walk = (dir: string): void => {
+  const walk = (dir: string, isRoot: boolean): void => {
     let entries: Dirent[];
     try {
       entries = readdirSync(dir, { withFileTypes: true });
-    } catch {
+    } catch (error) {
+      if (isRoot) {
+        throw error;
+      }
       return;
     }
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        if (SKIP_DIRS.has(entry.name)) {
+        if (entry.name.startsWith(".") || SKIP_DIRS.has(entry.name)) {
           continue;
         }
-        walk(join(dir, entry.name));
+        walk(join(dir, entry.name), false);
         continue;
       }
 
@@ -38,12 +60,18 @@ export function collectTestFiles(root: string): string[] {
     }
   };
 
-  walk(root);
+  walk(root, true);
   return found;
 }
 
 export async function runTests(root: string): Promise<number> {
-  const files = collectTestFiles(root);
+  let files: string[];
+  try {
+    files = collectTestFiles(root);
+  } catch {
+    return 1;
+  }
+
   if (files.length === 0) {
     console.log("test: no test files");
     return 0;

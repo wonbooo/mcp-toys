@@ -119,7 +119,7 @@ Bun 1.4.2 在仓库里没有任何测试文件时打印 `No tests found!` 并以
 `scripts/run-tests.ts` 负责保住「空仓库也能过」：
 
 - 跳过 `node_modules`、`dist`、`out`、`coverage`、`.git`。
-- 文件名包含 `.test`、`_test_`、`.spec` 或 `_spec_` 时，把它当作测试文件。这与 Bun 1.4.2 的发现规则一致。
+- 扩展名是 js、jsx、ts、tsx、mjs、cjs、mts、cts 之一，且去掉该扩展名后的文件名以 `.test`、`_test`、`.spec` 或 `_spec` 结尾时，把它当作测试文件。这与 Bun 1.4.2 的发现规则一致。
 - 一个都没有：打印 `test: no test files`，退出码 0。
 - 有测试文件：在仓库根目录、以继承的标准输入输出执行 `bun test`，退出码与该进程相同。
 - 禁止改成执行 `bun run test`，否则会递归调用自己。

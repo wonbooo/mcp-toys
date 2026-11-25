@@ -32,7 +32,7 @@ Biome 使用 2 个空格、行宽 100、LF 和双引号。
 
 ## 测试
 
-没有任何符合 Bun 规则的测试文件时，`bun run test` 由 `scripts/run-tests.ts` 打印 `test: no test files` 并以 0 退出。出现文件名包含 `.test`、`_test_`、`.spec` 或 `_spec_` 的文件后，它改为在仓库根目录执行 `bun test`。
+没有任何符合 Bun 规则的测试文件时，`bun run test` 由 `scripts/run-tests.ts` 打印 `test: no test files` 并以 0 退出。扩展名是 `js`、`jsx`、`ts`、`tsx`、`mjs`、`cjs`、`mts`、`cts` 之一，且去掉该扩展名后的文件名以 `.test`、`_test`、`.spec` 或 `_spec` 结尾时，它改为在仓库根目录执行 `bun test`。遍历时跳过名称以 `.` 开头的目录，以及 `node_modules`、`dist`、`out`、`coverage`。
 
 ## 应当提交的文件
 
